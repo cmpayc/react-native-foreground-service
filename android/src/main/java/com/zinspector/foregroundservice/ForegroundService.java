@@ -56,6 +56,8 @@ public class ForegroundService extends Service {
         //Log.e("ForegroundService", "destroy called");
         running = 0;
         mInstance = this;
+
+        SocketReconnectReceiver.schedule(getApplicationContext());
     }
 
     @Override
