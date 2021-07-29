@@ -1,5 +1,6 @@
 package com.zinspector.foregroundservice;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -22,11 +23,12 @@ public class SocketReconnectReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Log.d(TAG, "Socket broadcast receiver on receive");
+        ReactApplication rnApp = (ReactApplication) context.getApplicationContext();
+        ReactContext reactContext = rnApp.getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("RestartPTTAction", null);
         int connectionType = getConnectionType(context);
         if (connectionType > 0) {
-            ReactApplication rnApp = (ReactApplication) context.getApplicationContext();
-            ReactContext reactContext = rnApp.getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
-
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("RestartSocketAction", null);
         }
@@ -38,7 +40,7 @@ public class SocketReconnectReceiver extends BroadcastReceiver {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (cm != null) {
-                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                @SuppressLint("MissingPermission") NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
                 if (capabilities != null) {
                     if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         result = 2;
@@ -51,7 +53,7 @@ public class SocketReconnectReceiver extends BroadcastReceiver {
             }
         } else {
             if (cm != null) {
-                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                @SuppressLint("MissingPermission") NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 if (activeNetwork != null) {
                     // connected to the internet
                     if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
@@ -71,6 +73,6 @@ public class SocketReconnectReceiver extends BroadcastReceiver {
         Intent intent = new Intent(context, SocketReconnectReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 11111112, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 15000, pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
     }
 }
