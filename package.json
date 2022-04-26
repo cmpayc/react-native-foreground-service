@@ -1,6 +1,6 @@
 {
   "name": "react-native-foreground-service",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "A React Native android module to support launching a foreground service and JS code execution",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,13 @@
     "name": "Cristiano Coelho (zinspector)"
   },
   "license": "MIT",
-
   "peerDependencies": {
-    "react-native": ">=0.59.0"
+    "react-native": ">=0.66.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.13.10",
+    "@babel/runtime": "7.13.10",
+    "@react-native-community/eslint-config": "2.0.0",
+    "eslint": "^7.23.0"
   }
 }

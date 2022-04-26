@@ -7,12 +7,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-
-import com.facebook.react.HeadlessJsTaskService;
 
 import static com.zinspector.foregroundservice.Constants.NOTIFICATION_CONFIG;
 import static com.zinspector.foregroundservice.Constants.TASK_CONFIG;
+
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactNativeHost;
 
 
 // NOTE: headless task will still block the UI so don't do heavy work, but this is also good
@@ -51,6 +55,10 @@ public class ForegroundService extends Service {
         return true;
     }
 
+    protected ReactNativeHost getReactNativeHost() {
+        return ((ReactApplication) getApplication()).getReactNativeHost();
+    }
+
     @Override
     public void onCreate() {
         //Log.e("ForegroundService", "destroy called");
@@ -65,6 +73,20 @@ public class ForegroundService extends Service {
         //Log.e("ForegroundService", "destroy called");
         running = 0;
         mInstance = null;
+
+        try {
+
+            ReactNativeHost host = getReactNativeHost();
+            ReactContext context = host.getReactInstanceManager().getCurrentReactContext();
+
+            if (context != null) {
+                context
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("ForegroundService.onDestroy", null);
+            }
+        } catch(Throwable e) {
+            Log.w("ForegroundService", "Failed to notify service onDestroy: " + e.getMessage());
+        }
     }
 
     @Override
@@ -235,7 +257,7 @@ public class ForegroundService extends Service {
             //HeadlessJsTaskService.acquireWakeLockNow(getApplicationContext());
         }
         else{
-            new Handler().postDelayed(new Runnable() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if(running <= 0){
