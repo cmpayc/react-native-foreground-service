@@ -71,7 +71,12 @@ public class SocketReconnectReceiver extends BroadcastReceiver {
 
     public static void schedule(Context context) {
         Intent intent = new Intent(context, SocketReconnectReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 11111112, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                11111112,
+                intent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0
+        );
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
     }
